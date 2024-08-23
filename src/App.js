@@ -1,24 +1,63 @@
-import logo from './logo.svg';
+import { useReducer } from 'react';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+  Outlet,
+} from 'react-router-dom';
+import { AppProvider, ThemeProvider } from './context';
+import { Header, Footer } from './components';
 import './App.css';
+import { Home, BookingPage, ConfirmedBooking } from './pages';
+
+const Root = () => {
+  return (
+    <>
+      <Header />
+      <Outlet />
+      <Footer />
+    </>
+  );
+};
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Root />}>
+      <Route index element={<Home />} />
+      <Route path="bookings" element={<BookingPage />}>
+        <Route path="thank-you" element={<ConfirmedBooking />} />
+      </Route>
+    </Route>
+  )
+);
 
 function App() {
+  const initialAppState = {
+    previousLocation: ['/'],
+  };
+  const reducer = (state, { type, payload }) => {
+    switch (type) {
+      case 'setPreviousLocation': {
+        return {
+          // ...state,
+          // previousLocation: [...state.previousLocation]
+          //   .slice(0, 1)
+          //   .push(payload),
+        };
+      }
+
+      default:
+        break;
+    }
+  };
+  const [stateGlobal, dispatchGlobal] = useReducer(reducer, initialAppState);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppProvider value={{ stateGlobal, dispatchGlobal }}>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </AppProvider>
   );
 }
 
